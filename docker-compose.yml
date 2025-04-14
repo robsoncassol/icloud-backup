@@ -1,0 +1,15 @@
+services:
+  icloud:
+    image: mandarons/icloud-drive
+    environment:
+      - PUID=1000
+      - PGID=1000
+    env_file:
+      - .env.icloud
+    container_name: icloud-photos
+    restart: always
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /home/umbrel/umbrel/home/Photos/icloud:/icloud
+      - /home/umbrel/umbrel/app-data/icloud/config:/config 
