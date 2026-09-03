@@ -1,15 +1,22 @@
 services:
-  icloud:
-    image: mandarons/icloud-drive
+  icloudpd:
+    image: boredazfcuk/icloudpd
+    container_name: icloudpd
+    restart: unless-stopped
+    network_mode: host
     environment:
-      - PUID=1000
-      - PGID=1000
-    env_file:
-      - .env.icloud
-    container_name: icloud-photos
-    restart: always
+      - apple_id=robsoncassol@gmail.com
+      - download_path=/media/robsoncassol/ssd-backup/photos
+      - authentication_type=MFA
+      - country_code=BR
+      - TZ=America/Sao_Paulo
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /home/umbrel/umbrel/home/Photos/icloud:/icloud
-      - /home/umbrel/umbrel/app-data/icloud/config:/config 
+      - /media/robsoncassol/ssd-backup/photos:/media/robsoncassol/ssd-backup/photos
+      - /home/robsoncassol/docker/icloud/icloud_config:/config
+      # Override do entrypoint da imagem: aumenta o failsafe de 30min pra 90min
+      # (5 ocorrências de "-eq 360" -> "-eq 1080" em sync-icloud.sh). Motivo:
+      # com ~70-94k fotos na biblioteca, o primeiro scan completo (ou qualquer
+      # catch-up depois de dias parado) passava dos 30min e o container se
+      # auto-reiniciava no meio, zerando o progresso — loop perpétuo sem nunca
+      # terminar um ciclo. Ver Tech/Homelab/Known-Failures.md (03/09/2026).
+      - /home/robsoncassol/docker/icloud/sync-icloud.sh:/usr/local/bin/sync-icloud.sh:ro
